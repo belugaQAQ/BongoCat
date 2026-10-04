@@ -166,6 +166,20 @@ void bongo_cat_app_apply_mouse_coordinates(BongoCatApp *app, double hand_x,
         set_parameter(app, "ParamMouseY", hand_x_ratio, hand_y_ratio,
             horizontal_mirror);
     }
+    /* VTube Studio drawing models use authored hand parameters instead of
+       BongoCat's conventional ParamMouse axes. Preserve their actual ranges. */
+    BongoCatParameterRange drawing_range;
+    if (bongo_cat_live2d_parameter(app->live2d, "pointX", &drawing_range) &&
+        bongo_cat_live2d_parameter(app->live2d, "pointY", &drawing_range)) {
+        set_parameter(app, "pointX", hand_x_ratio, hand_y_ratio,
+            horizontal_mirror);
+        set_parameter(app, "pointY", hand_x_ratio, hand_y_ratio,
+            horizontal_mirror);
+        set_parameter(app, "danbaoX", hand_x_ratio, hand_y_ratio,
+            horizontal_mirror);
+        set_parameter(app, "danbaoY", hand_x_ratio, hand_y_ratio,
+            horizontal_mirror);
+    }
     /* Pointer and window messages are not atomic during a native window move. */
     if (!app->settings.model.mouse_centered || !app->window_drag_active) {
         if (app->settings.model.mouse_centered)

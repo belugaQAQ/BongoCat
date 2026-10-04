@@ -27,3 +27,16 @@ to an Mver package before they enter the installed-model catalog.
 - Installed packages are validated through Mver discovery after preparation.
 - Format-specific APIs stay in their format directories.
 - Shared path and manifest helpers stay format-neutral.
+
+## Drawing-model input compatibility
+
+Models exposing `pointX` and `pointY` receive desktop pointer coordinates in
+their authored parameter ranges. Optional `danbaoX` and `danbaoY` axes follow
+the same pointer. Models with both drawing axes covering -30 to 30 also receive
+momentary button parameters: `chehui` for Control+Z, `pi` for E, and `bi` for
+the left mouse button. Releasing either key in Control+Z clears `chehui`.
+These writes use the existing parameter-override path, not expression selection.
+An `Idle` motion group is required for automatic idle playback.
+Full visual verification and a distributable rendering build require the
+Cubism SDK; the diagnostic backend cannot validate model deformation.
+

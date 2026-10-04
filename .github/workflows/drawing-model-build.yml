@@ -1,0 +1,47 @@
+name: Drawing model Windows build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'include/**'
+      - 'cmake/**'
+      - '.github/workflows/drawing-model-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v5
+      - name: Restore Cubism SDK and GLEW
+        shell: pwsh
+        run: ./.github/scripts/restore-cubism-sdk.ps1
+      - name: Configure full renderer
+        shell: pwsh
+        run: >-
+          cmake -S . -B build-drawing -G "Visual Studio 17 2022" -A x64
+          -DBONGO_CAT_REQUIRE_CUBISM=ON -DBONGO_CAT_WARNINGS_AS_ERRORS=ON
+      - name: Build
+        shell: pwsh
+        run: >-
+          & ./.github/scripts/build-windows.ps1
+          cmake --build build-drawing --config Release --parallel 2
+      - name: Test
+        shell: pwsh
+        run: >-
+          & ./.github/scripts/test-windows.ps1
+          ctest --test-dir build-drawing -C Release --output-on-failure
+      - name: Package portable application
+        run: cmake --build build-drawing --config Release --target package-portable
+      - name: Upload portable application
+        uses: actions/upload-artifact@v4
+        with:
+          name: BongoCat-drawing-windows-x64
+          path: build-drawing/dist/*-portable.exe
+          if-no-files-found: error
+          retention-days: 14

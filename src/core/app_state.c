@@ -48,6 +48,26 @@ static void active_input_update(BongoCatApp *app,
     app->active_inputs[index].kind = kind;
 }
 
+static void update_drawing_buttons(BongoCatApp *app) {
+    BongoCatParameterRange range;
+    if (!bongo_cat_live2d_parameter(app->live2d, "pointX", &range) ||
+        range.minimum > -30.0f || range.maximum < 30.0f ||
+        !bongo_cat_live2d_parameter(app->live2d, "pointY", &range) ||
+        range.minimum > -30.0f || range.maximum < 30.0f) return;
+    bool control = active_input_index(app, BONGO_CAT_INPUT_KEY_DOWN,
+        "ControlLeft") < app->active_input_count ||
+        active_input_index(app, BONGO_CAT_INPUT_KEY_DOWN,
+        "ControlRight") < app->active_input_count;
+    bool undo = control && active_input_index(app, BONGO_CAT_INPUT_KEY_DOWN,
+        "KeyZ") < app->active_input_count;
+    bool erase = active_input_index(app, BONGO_CAT_INPUT_KEY_DOWN,
+        "KeyE") < app->active_input_count;
+    bongo_cat_live2d_set_parameter(app->live2d, "chehui", undo ? 1.0f : 0.0f);
+    bongo_cat_live2d_set_parameter(app->live2d, "pi", erase ? 1.0f : 0.0f);
+    bongo_cat_live2d_set_parameter(app->live2d, "bi",
+        app->left_mouse_down ? 1.0f : 0.0f);
+}
+
 static bool stick_active(float x, float y, bool pressed) {
     return pressed || fabsf(x) > 0.001f || fabsf(y) > 0.001f;
 }
@@ -155,6 +175,7 @@ void bongo_cat_app_apply_input(BongoCatApp *app, const BongoCatInputEvent *event
     case BONGO_CAT_INPUT_GAMEPAD_AXIS: apply_gamepad(app, event); break;
     default: break;
     }
+    update_drawing_buttons(app);
 }
 
 void bongo_cat_app_reapply_input(BongoCatApp *app) {
@@ -172,5 +193,6 @@ void bongo_cat_app_reapply_input(BongoCatApp *app) {
             apply_gamepad(app, event);
     }
     update_hands(app);
+    update_drawing_buttons(app);
     app->dirty = true;
 }
