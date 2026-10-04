@@ -36,12 +36,13 @@ jobs:
         run: >-
           & ./.github/scripts/test-windows.ps1
           ctest --test-dir build-drawing -C Release --output-on-failure
-      - name: Package portable application
-        run: cmake --build build-drawing --config Release --target package-portable
-      - name: Upload portable application
+      - name: Package Windows installer
+        shell: pwsh
+        run: cmake --build build-drawing --config Release --target package
+      - name: Upload Windows installer
         uses: actions/upload-artifact@v4
         with:
-          name: BongoCat-drawing-windows-x64
-          path: build-drawing/dist/*-portable.exe
+          name: BongoCat-drawing-windows-x64-installer
+          path: build-drawing/dist/*-setup.exe
           if-no-files-found: error
           retention-days: 14
